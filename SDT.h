@@ -7,20 +7,20 @@
 // G0ORX_FRONTPANEL is the MCP23017 front panel for the encoders and push buttons
 // G0ORX_FRONTPANEL_2 is the Raspberry Pi Pico front panel
 //#define G0ORX_FRONTPANEL
-#define G0ORX_FRONTPANEL_2
+//#define G0ORX_FRONTPANEL_2
 
 #if (defined(G0ORX_FRONTPANEL) && defined(G0ORX_FRONTPANEL_2))
 #error Only G0ORX_FRONTPANEL OR G0ORX_FRONTPANEL_2 can be defined (not both)
 #endif
 
 // G0ORX_CAT will include ts-2000 CAT interface over USB Serial (the same port used for programming the Teensy 4.1)
-#define G0ORX_CAT
+//#define G0ORX_CAT
 
 // G0ORX_AUDIO_DISPLAY draws a Time Domain plot of the Microphone or CW  Audio when transmitting
-#define G0ORX_AUDIO_DISPLAY
+//#define G0ORX_AUDIO_DISPLAY
 
 // G0ORX_VFO -- uses User1 to copy VFOA to VFOB, User2 to copy VFOB to VFOA
-#define G0ORX_VFO
+//#define G0ORX_VFO
 
 //======================================== User section that might need to be changed ===================================
 #include "MyConfigurationFile.h"                                          // This file name should remain unchanged

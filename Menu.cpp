@@ -153,6 +153,7 @@ int SetPrimaryMenuIndex() {
   calibrateFlag=1;
 #endif
   while (true) {
+#ifdef G0ORX_FRONTPANEL_2
     if(touchPrimaryMenuIndex>=0) {
       unselectPrimaryMenuIndex(mainMenuIndex);
       mainMenuIndex = touchPrimaryMenuIndex;
@@ -163,7 +164,9 @@ int SetPrimaryMenuIndex() {
       selectPrimaryMenuIndex(mainMenuIndex);
     } else if(touchSecondaryMenuIndex>=0) {
       break;
-    } else if (filterEncoderMove != 0) {      // Did they move the encoder?
+    }
+#endif
+    if (filterEncoderMove != 0) {      // Did they move the encoder?
       unselectPrimaryMenuIndex(mainMenuIndex);
       mainMenuIndex += filterEncoderMove;     // Change the menu index to the new value
       if (mainMenuIndex >= TOP_MENU_COUNT) {  // Did they go past the end of the primary menu list?
@@ -240,7 +243,7 @@ int SetSecondaryMenuIndex()
   calibrateFlag=1;
 #endif
   while (true) {
-
+#ifdef G0ORX_FRONTPANEL_2
     if(touchSecondaryMenuIndex>=0) {
       unselectSecondaryMenuIndex(oldIndex);
       oldIndex = touchSecondaryMenuIndex;
@@ -249,7 +252,8 @@ int SetSecondaryMenuIndex()
         oldIndex = secondaryMenuCount - 1;                    // Yep. Set last in the list.
       }
       selectSecondaryMenuIndex(oldIndex);
-    } else 
+    }
+#endif
     if (filterEncoderMove != 0) {  // Did they move the encoder?
       //tft.fillRect(SECONDARY_MENU_X, MENUS_Y, EACH_MENU_WIDTH + 30, CHAR_HEIGHT, RA8875_BLACK);
       //tft.setTextColor(DARKGREY);  // Yep. Repaint the old choice
