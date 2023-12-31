@@ -6,3 +6,5 @@
 ### G0ORX MCP23017 Front Panel
 ### G0ORX Rapsberry Pi Pico Front Panel
 
+See https://github.com/g0orx/T41-EP/wiki
+
