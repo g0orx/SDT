@@ -94,8 +94,6 @@ void ExecuteButtonPress(int val)
       SetPrimaryMenuIndex();                // Scroll through primary indexes and select one
       SetSecondaryMenuIndex();              // Use the primary index selection to redraw the secondary menu and set its index
       secondaryMenuChoiceMade = functionPtr[mainMenuIndex](); 
-Serial.print("secondaryMenuChoiceMade = ");
-Serial.println(secondaryMenuChoiceMade);
 
       tft.fillRect(1, SPECTRUM_TOP_Y + 1, 513, 379, RA8875_BLACK);          // Erase Menu box
       DrawSpectrumDisplayContainer();
@@ -292,9 +290,8 @@ Serial.println(secondaryMenuChoiceMade);
       RedrawDisplayScreen();
       ShowFrequency();
       DrawFrequencyBarValue();
-      
-      break;
 #endif
+      break;
 
 #if (defined(G0ORX_FRONTPANEL) || defined(G0ORX_FRONTPANEL_2))
     case 18:                                                      // 18 - Encoder 1 SW (Volume)
@@ -309,6 +306,9 @@ Serial.println(secondaryMenuChoiceMade);
           volumeFunction=SIDETONE_VOLUME;
           break;
         case SIDETONE_VOLUME:
+          volumeFunction=NOISE_FLOOR_LEVEL;
+          break;
+        case NOISE_FLOOR_LEVEL:
           volumeFunction=AUDIO_VOLUME;
           break;
       }

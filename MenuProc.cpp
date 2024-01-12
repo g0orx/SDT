@@ -623,8 +623,6 @@ int RFOptions() {
 //  rfSet = SubmenuSelect(rfOptions, 3, rfSet);
 
 //  switch (rfSet) {
-Serial.print("secondaryMenuChoiceMade = ");
-Serial.println(secondaryMenuChoiceMade);
   switch (secondaryMenuIndex) {
     case 0:                                                                                             // Power Level JJP 11/17/23 JJP
       transmitPowerLevel = (float)GetEncoderValue(1, 20, transmitPowerLevel, 1, (char *)"Power: ");

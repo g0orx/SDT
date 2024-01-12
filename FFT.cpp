@@ -153,7 +153,7 @@ void ZoomFFTExe(uint32_t blockSize)  //AFP changed resolution 03-12-21  Only for
 void CalcZoom1Magn()
 {
  if (updateDisplayFlag == 1) {
-  float32_t spec_help = 0.0;
+  //float32_t spec_help = 0.0;
   float32_t LPFcoeff = 0.7;
   if (LPFcoeff > 1.0) {
     LPFcoeff = 1.0;

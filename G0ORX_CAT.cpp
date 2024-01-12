@@ -57,7 +57,7 @@ void IFResponse() {
                   0);
 }
 
-void processCATCommand() {
+char *processCATCommand(char *catCommand) {
   char p1;
   bool xmtMode_changed= false;
 
@@ -420,25 +420,13 @@ void processCATCommand() {
       sprintf(outputBuffer,"?;");
       break;      
   }
-
-  int i=0;
-  while(outputBuffer[i]!='\0') {
-    if(Serial.availableForWrite()>0) {
-      Serial.print(outputBuffer[i]);
-#ifdef DEBUG_CAT
-      //MorseCharacterDisplay(outputBuffer[i]);
-#endif
-      i++;
-    } else {
-      Serial.flush();
-    }
-  }
-  Serial.flush();
+  return outputBuffer;
 }
 
 void CATSerialEvent() {
   int i;
   char c;
+  char *outputBuffer;
   while((i=Serial.available())>0) {
     c=(char)Serial.read();
     i--;
@@ -447,8 +435,23 @@ void CATSerialEvent() {
     MorseCharacterDisplay(catCommand[catCommandIndex]); // DEBUG output to bottom line of display
 #endif
     if(c==';') {
-      processCATCommand();
+      processCATCommand(catCommand);
       catCommandIndex=0;
+      if(outputBuffer[0]!='\0') {
+        int i=0;
+        while(outputBuffer[i]!='\0') {
+          if(Serial.availableForWrite()>0) {
+            Serial.print(outputBuffer[i]);
+#ifdef DEBUG_CAT
+            //MorseCharacterDisplay(outputBuffer[i]);
+#endif
+            i++;
+          } else {
+            Serial.flush();
+          }
+        }
+        Serial.flush();
+      }
     } else {
       catCommandIndex++;
       if(catCommandIndex>=128) {

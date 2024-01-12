@@ -434,8 +434,8 @@ int ButtonSetNoiseFloor() {
   while (true) {
     if (filterEncoderMove != 0) {
       floor += filterEncoderMove;  // It moves the display
-      if (floor < 50) {
-        floor = 50;
+      if (floor < 0) { // G0ORX was 50?
+        floor = 0;
       }
       tft.fillRect(SECONDARY_MENU_X + 190, MENUS_Y, 80, CHAR_HEIGHT, RA8875_MAGENTA);
       tft.setCursor(SECONDARY_MENU_X + 200, MENUS_Y + 1);

@@ -7,31 +7,45 @@
 // G0ORX_FRONTPANEL is the MCP23017 front panel for the encoders and push buttons
 // G0ORX_FRONTPANEL_2 is the Raspberry Pi Pico front panel
 //#define G0ORX_FRONTPANEL
-//#define G0ORX_FRONTPANEL_2
+#define G0ORX_FRONTPANEL_2
 
 #if (defined(G0ORX_FRONTPANEL) && defined(G0ORX_FRONTPANEL_2))
 #error Only G0ORX_FRONTPANEL OR G0ORX_FRONTPANEL_2 can be defined (not both)
 #endif
 
 // G0ORX_CAT will include ts-2000 CAT interface over USB Serial (the same port used for programming the Teensy 4.1)
-//#define G0ORX_CAT
+#define G0ORX_CAT
 
 // G0ORX_AUDIO_DISPLAY draws a Time Domain plot of the Microphone or CW  Audio when transmitting
-//#define G0ORX_AUDIO_DISPLAY
+#define G0ORX_AUDIO_DISPLAY
 
 // G0ORX_VFO -- uses User1 to copy VFOA to VFOB, User2 to copy VFOB to VFOA
-//#define G0ORX_VFO
+#define G0ORX_VFO
+
+
+//#define NETWORK
+#ifdef NETWORK
+#include <NativeEthernet.h>
+#include <NativeEthernetUdp.h>
+extern uint8_t my_mac[];
+extern bool network_initialized;
+bool EthernetInit();
+void EthernetEvent();
+#endif
 
 //======================================== User section that might need to be changed ===================================
 #include "MyConfigurationFile.h"                                          // This file name should remain unchanged
 #define VERSION                     "V049.5"                               // Change this for updates. If you make this longer than 9 characters, brace yourself for surprises
 #define UPDATE_SWITCH_MATRIX        0                                     // 1 = Yes, redo the switch matrix values, 0 = leave switch matrix values as is from the last change
+
+#ifndef G0ORX_VFO
 struct maps {
   char mapNames[50];
   float lat;
   float lon;
 };
 extern struct maps myMapFiles[];
+#endif
 
 
 //======================================== Library include files ========================================================
@@ -70,7 +84,12 @@ extern struct maps myMapFiles[];
 //======================================== Symbolic Constants for the T41 ===================================================
 #define RIGNAME                     "T41-EP SDT"
 #define NUMBER_OF_SWITCHES          18              // Number of push button switches. 16 on older boards
+
+#ifndef G0ORX_VFO
 #define TOP_MENU_COUNT              13              // Menus to process AFP 09-27-22, JJP 7-8-23
+#else
+#define TOP_MENU_COUNT              12              // Menus to process G0ORX
+#endif
 
 #define RIGNAME_X_OFFSET            570             // Pixel count to rig name field                                       // Says we are using a Teensy 4 or 4.1
 #define RA8875_DISPLAY              1               // Comment out if not using RA8875 display
@@ -2284,6 +2303,7 @@ int  SpectrumOptions();
 #ifdef G0ORX_AUDIO_DISPLAY
  extern float32_t mic_audio_buffer[];
  void ShowTXAudio();
+ void ClearTXAudio();
 #endif
 
 void TurnOffInitializingMessage();
@@ -2357,6 +2377,7 @@ void ZoomFFTExe(uint32_t blockSize);
 #define MIC_GAIN 1
 #define AGC_GAIN 2
 #define SIDETONE_VOLUME 3
+#define NOISE_FLOOR_LEVEL 4
 
  extern int volumeFunction;
 #endif
@@ -2368,6 +2389,7 @@ void ZoomFFTExe(uint32_t blockSize);
 #ifdef G0ORX_CAT
  extern int CATOptions();
  extern bool catTX;
+ extern char *processCATCommand(char *buffer);
  extern void CATSerialEvent();
  extern int ChangeBand(long f, boolean updateRelays);
 #endif

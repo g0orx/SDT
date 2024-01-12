@@ -378,6 +378,14 @@ void front_panel_interrupt() {
             modeSelectOutR.gain(1, sidetoneVolume/100.0);
           }
           break;
+        case NOISE_FLOOR_LEVEL:
+          currentNoiseFloor[currentBand] += encoder_value[0];
+          if(currentNoiseFloor[currentBand]<0) {
+            currentNoiseFloor[currentBand]=0;
+          } else if(currentNoiseFloor[currentBand]>100) {
+            currentNoiseFloor[currentBand]=100;
+          }
+          break;
       }
       volumeChangeFlag = true;
       break;

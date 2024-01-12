@@ -1,6 +1,8 @@
 #ifndef BEENHERE
 #include "SDT.h"
 #endif
+
+#ifndef G0ORX_VFO
 /*
   #define SD_CS                       BUILTIN_SDCARD        // Works on T_3.6 and T_4.1 ...
 
@@ -1361,6 +1363,8 @@ inline void Color565ToRGB(uint16_t color, uint8_t &r, uint8_t &g, uint8_t &b) {
 }
 
 
+// G0ORX - moved to Utility.cpp
+#ifdef INCLUDE_SDCARD
 /*****
   Purpose: Initialize the SD card
 
@@ -1389,6 +1393,7 @@ int InitializeSDCard() {
   //  MyDelay(2000L);
   return sdCardPresent;
 }
+#endif
 
 /*****
   Purpose: Erase initialization error message
@@ -1650,3 +1655,4 @@ int VectorCalc() {
   }
   return 1;
 }
+#endif

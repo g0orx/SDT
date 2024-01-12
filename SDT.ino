@@ -501,6 +501,14 @@ int touchPrimaryMenuIndex = -1;
 int touchSecondaryMenuIndex = -1;
 #endif
 
+#ifdef NETWORK
+bool network_initialized = false;
+uint8_t my_mac[] = {
+  0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0x02
+};
+#endif
+
+#ifndef G0ORX_VFO
 /*                                  Presented here so you can see how the members allign
 struct maps {
   char mapNames[50];
@@ -519,6 +527,7 @@ struct maps myMapFiles[10] = {
   { "", 0.0, 0.0 },
   { "", 0.0, 0.0 }
 };
+#endif
 
 bool save_last_frequency = false;
 struct band bands[NUMBER_OF_BANDS] = {  //AFP Changed 1-30-21 // G0ORX Changed AGC to 20
@@ -548,8 +557,10 @@ struct band bands[NUMBER_OF_BANDS] = {  //AFP Changed 1-30-21 // G0ORX Changed A
 const char *topMenus[] = { "CW Options", "RF Set", "VFO Select",
                            "EEPROM", "AGC", "Spectrum Options",
                            "Noise Floor", "Mic Gain", "Mic Comp",
-                           "EQ Rec Set", "EQ Xmt Set", "Calibrate", 
-                           "Bearing"
+                           "EQ Rec Set", "EQ Xmt Set", "Calibrate"
+#ifndef G0ORX_VFO
+                           , "Bearing"
+#endif
                          };
 
 const char *secondaryChoices[][8] = {
@@ -565,15 +576,25 @@ const char *secondaryChoices[][8] = {
   { "On", "Off", "EQSet", "Cancel" },                                                                                     // Receiver equalizer
   { "On", "Off", "EQSet", "Cancel" },                                                                                     // Transmiiter equilizer
   { "Freq Cal", "CW PA Cal", "Rec Cal", "Xmit Cal", "SSB PA Cal", "Cancel" },                                             // Calibrate
+#ifndef G0ORX_VFO
   { "Set Prefix", "Cancel" }                                                                                              // Bearing
+#endif
 };
 
-int secondaryMenuCounts[TOP_MENU_COUNT] = {7, 3, 4, 8, 6, 6, 2, 2, 7, 4, 4, 6, 2};  // The are the number of secondary menu for each primary menu
+int secondaryMenuCounts[TOP_MENU_COUNT] = {7, 3, 4, 8, 6, 6, 2, 2, 7, 4, 4, 6,
+#ifndef G0ORX_VFO
+2
+#endif
+};  // The are the number of secondary menu for each primary menu
 
 int (*functionPtr[])() = { &CWOptions, &RFOptions, &VFOSelect,
                            &EEPROMOptions, &AGCOptions, &SpectrumOptions,
                            &ButtonSetNoiseFloor, &MicGainSet, &MicOptions,
-                           &EqualizerRecOptions, &EqualizerXmtOptions, &IQOptions, &BearingMaps };
+                           &EqualizerRecOptions, &EqualizerXmtOptions, &IQOptions
+#ifndef G0ORX_VFO
+                           , &BearingMaps
+#endif
+                           };
 
 const char *labels[] = { "Select", "Menu Up", "Band Up",
                          "Zoom", "Menu Dn", "Band Dn",
@@ -2481,6 +2502,17 @@ void setup() {
   Teensy3Clock.set(now());  // set the RTC
   T4_rtc_set(Teensy3Clock.get());
 
+#ifdef NETWORK
+  if (Ethernet.begin(my_mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    } else if (Ethernet.linkStatus() == LinkOFF) {
+      Serial.println("Ethernet cable is not connected.");
+    }
+  }
+#endif
+
   sgtl5000_1.setAddress(LOW);
   sgtl5000_1.enable();
   AudioMemory(500);  //  Increased to 450 from 400.  Memory was hitting max.  KF5N August 31, 2023
@@ -2573,6 +2605,10 @@ void setup() {
   Splash();
 
   sdCardPresent = InitializeSDCard();  // Is there an SD card that can be initialized?
+
+#ifdef NETWORK
+  network_initialized=EthernetInit();
+#endif
 
   // =============== Into EEPROM section =================
   EEPROMStartup();
@@ -2722,6 +2758,10 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
 
 #ifdef G0ORX_CAT
   CATSerialEvent();
+#endif
+
+#ifdef NETWORK
+  EthernetEvent();
 #endif
 
   valPin = ReadSelectedPushButton();                     // Poll UI push buttons
@@ -2987,6 +3027,10 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
           }
         }
         CW_ExciterIQData();
+#ifdef G0ORX_AUDIO_DISPLAY
+        arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
+        ShowTXAudio();
+#endif
         keyPressedOn = 0;  // Fix for keyer click-clack.  KF5N August 16, 2023
       }                    //End Relay timer
 

@@ -141,12 +141,12 @@ void unselectSecondaryMenuIndex(int index) {
 *****/
 
 int SetPrimaryMenuIndex() {
-  int i;
-  int resultIndex;
+  //int i;
+  //int resultIndex;
   int val;
 
-  i = 0;
-  resultIndex = 0;
+  //i = 0;
+  //resultIndex = 0;
   //  mainMenuIndex = 0;
 
 #ifdef G0ORX_FRONTPANEL_2

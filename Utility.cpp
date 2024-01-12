@@ -662,6 +662,35 @@ int SDPresentCheck()
 
 }
 
+/*****
+  Purpose: Initialize the SD card
+
+  Parameter list:
+    void
+
+  Return value;
+    int                   0 if cannot initialize, 1 otherwise
+*****/
+int InitializeSDCard() {
+  if (sdCardPresent == 255) {
+    return sdCardPresent;
+  }
+  tft.setFontScale((enum RA8875tsize)1);
+  tft.setTextColor(RA8875_RED, RA8875_BLACK);
+  tft.setCursor(100, 240);
+  if (!SD.begin(chipSelect)) {
+    tft.print("SD card cannot be initialized.");
+    MyDelay(2000L);  // Given them time to read it.
+    sdCardPresent = 0;
+    return sdCardPresent;
+  }
+  sdCardPresent = 255;
+
+  //  tft.print("Initializing SD card.");
+  //  MyDelay(2000L);
+  return sdCardPresent;
+}
+
 #ifdef G0ORX_CAT
 /*****
   Purpose: change band from frequency
