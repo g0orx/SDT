@@ -2885,6 +2885,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
         T41State = CW_RECEIVE;
         ShowTransmitReceiveStatus();
 #ifdef G0ORX_AUDIO_DISPLAY
+        arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
         DrawAudioSpectContainer();
 #endif
         xrState = RECEIVE_STATE;
@@ -2938,6 +2939,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
             modeSelectOutL.gain(1, 0);  // Sidetone off
             modeSelectOutR.gain(1, 0);
 #ifdef G0ORX_AUDIO_DISPLAY
+            arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
             ShowTXAudio();
 #endif
           }
@@ -2983,7 +2985,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
             modeSelectOutL.gain(1, volumeLog[(int)sidetoneVolume]);  // Sidetone
                                                                      //  modeSelectOutR.gain(1, volumeLog[(int)sidetoneVolume]);           // Right side not used.  KF5N September 1, 2023
             CW_ExciterIQData();                                      // Creates CW output signal
-#ifdef G0ORX_AUDIO_DISPLAY 
+#ifdef G0ORX_AUDIO_DISPLAY
             ShowTXAudio();
 #endif
             keyPressedOn = 0;
@@ -2996,6 +2998,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
             modeSelectOutR.gain(1, 0);
             CW_ExciterIQData();
 #ifdef G0ORX_AUDIO_DISPLAY
+            arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
             ShowTXAudio();
 #endif
             keyPressedOn = 0;
@@ -3024,6 +3027,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
               modeSelectOutR.gain(1, 0);
               CW_ExciterIQData();
 #ifdef G0ORX_AUDIO_DISPLAY
+              arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
               ShowTXAudio();
 #endif
             }
@@ -3031,6 +3035,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
         }
         CW_ExciterIQData();
 #ifdef G0ORX_AUDIO_DISPLAY
+        arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
         ShowTXAudio();
 #endif
         keyPressedOn = 0;  // Fix for keyer click-clack.  KF5N August 16, 2023
