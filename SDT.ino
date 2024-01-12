@@ -2862,6 +2862,9 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
         }
 #endif
       }
+#ifdef G0ORX_AUDIO_DISPLAY
+      DrawAudioSpectContainer();
+#endif
       Q_in_L_Ex.end();  // End Transmit Queue
       Q_in_R_Ex.end();
       Q_in_L.begin();  // Start Receive Queue
@@ -2881,6 +2884,9 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
         digitalWrite(MUTE, LOW);      //turn off mute
         T41State = CW_RECEIVE;
         ShowTransmitReceiveStatus();
+#ifdef G0ORX_AUDIO_DISPLAY
+        DrawAudioSpectContainer();
+#endif
         xrState = RECEIVE_STATE;
         modeSelectInR.gain(0, 1);
         modeSelectInL.gain(0, 1);
@@ -2932,7 +2938,6 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
             modeSelectOutL.gain(1, 0);  // Sidetone off
             modeSelectOutR.gain(1, 0);
 #ifdef G0ORX_AUDIO_DISPLAY
-            arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
             ShowTXAudio();
 #endif
           }
@@ -2991,7 +2996,6 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
             modeSelectOutR.gain(1, 0);
             CW_ExciterIQData();
 #ifdef G0ORX_AUDIO_DISPLAY
-            arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
             ShowTXAudio();
 #endif
             keyPressedOn = 0;
@@ -3020,7 +3024,6 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
               modeSelectOutR.gain(1, 0);
               CW_ExciterIQData();
 #ifdef G0ORX_AUDIO_DISPLAY
-              arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
               ShowTXAudio();
 #endif
             }
@@ -3028,7 +3031,6 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
         }
         CW_ExciterIQData();
 #ifdef G0ORX_AUDIO_DISPLAY
-        arm_scale_f32 (mic_audio_buffer, 0.0, mic_audio_buffer, 256);
         ShowTXAudio();
 #endif
         keyPressedOn = 0;  // Fix for keyer click-clack.  KF5N August 16, 2023
