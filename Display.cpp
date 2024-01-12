@@ -1710,7 +1710,9 @@ void ShowTransmitReceiveStatus() {
     FrontPanelSetLed(0,1);
     FrontPanelSetLed(1,0);
 #endif
+#ifdef G0ORX_AUDIO_DISPLAY
     ClearTXAudio();
+#endif
   } else {
     tft.fillRect(X_R_STATUS_X, X_R_STATUS_Y, 55, 25, RA8875_GREEN);
     tft.setCursor(X_R_STATUS_X + 4, X_R_STATUS_Y - 5);
