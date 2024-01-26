@@ -274,14 +274,14 @@ void SetTransmitDitLength(int wpm) {
     void
 *****/
 int SetKeyType() {
-  char *keyChoice[] = { (char *)"Straight Key", (char *)"Keyer", (char *)"Cancel" };
+  char *keyChoice[] = { (char *)"Straight Key", (char *)"Keyer", (char *)"Iambic-A", (char *)"Cancel" };
 
   tft.fillRect(SECONDARY_MENU_X, MENUS_Y, EACH_MENU_WIDTH, CHAR_HEIGHT + 1, MAGENTA);  // Erase menu choices
   tft.setCursor(SECONDARY_MENU_X, MENUS_Y);
   tft.setTextColor(RA8875_BLACK, RA8875_MAGENTA);
   tft.print(secondaryChoices[secondaryMenuIndex][EEPROMData.keyType]);
 
-  keyType = SecondarySubmenuString(keyChoice, 3, EEPROMData.keyType);
+  keyType = SecondarySubmenuString(keyChoice, 4, EEPROMData.keyType);
 
   tft.fillRect(SECONDARY_MENU_X, MENUS_Y, EACH_MENU_WIDTH, CHAR_HEIGHT, RA8875_BLACK);  // Erase menu field
   tft.setTextColor(RA8875_WHITE);

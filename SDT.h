@@ -1,13 +1,16 @@
 #ifndef BEENHERE
 #define BEENHERE
 
+// enable for V12 hardware -- G0ORX
+//#define V12
+
 // G0ORX changes by John Melton
 //
 // G0ORX_FRONTPANEL and G0ORX_FRONTPANEL2 are mutually exclusive  (only enable 1 of them if at all)
 // G0ORX_FRONTPANEL is the MCP23017 front panel for the encoders and push buttons
 // G0ORX_FRONTPANEL_2 is the Raspberry Pi Pico front panel
-#define G0ORX_FRONTPANEL
-//#define G0ORX_FRONTPANEL_2
+//#define G0ORX_FRONTPANEL
+#define G0ORX_FRONTPANEL_2
 
 #if (defined(G0ORX_FRONTPANEL) && defined(G0ORX_FRONTPANEL_2))
 #error Only G0ORX_FRONTPANEL OR G0ORX_FRONTPANEL_2 can be defined (not both)
@@ -33,9 +36,19 @@ bool EthernetInit();
 void EthernetEvent();
 #endif
 
+//#define G0ORX_MIDI
+#ifdef G0ORX_MIDI
+extern void MIDI_setup();
+extern void MIDI_loop();
+#endif
+
 //======================================== User section that might need to be changed ===================================
 #include "MyConfigurationFile.h"                                          // This file name should remain unchanged
+#ifdef V12
+#define VERSION                     "V049.5 V12"                               // Change this for updates. If you make this longer than 9 characters, brace yourself for surprises
+#else
 #define VERSION                     "V049.5"                               // Change this for updates. If you make this longer than 9 characters, brace yourself for surprises
+#endif
 #define UPDATE_SWITCH_MATRIX        0                                     // 1 = Yes, redo the switch matrix values, 0 = leave switch matrix values as is from the last change
 
 #ifndef G0ORX_VFO
@@ -66,7 +79,11 @@ extern struct maps myMapFiles[];
 #endif
 #include <arm_math.h>
 #include <arm_const_structs.h>
+#ifdef V12
+#include "si5351.h"
+#else
 #include <si5351.h>                                 // https://github.com/etherkit/Si5351Arduino
+#endif
 #include <RA8875.h>                                 // https://github.com/mjs513/RA8875/tree/RA8875_t4
 #ifdef G0ORX_FRONTPANEL
 #include <Adafruit_MCP23X17.h>
@@ -428,6 +445,7 @@ extern struct maps myMapFiles[];
 #define OPTO_OUTPUT                  24    // To optoisolator and keyed circuit
 #define STRAIGHT_KEY                  0
 #define KEYER                         1
+#define IAMBIC_A                      2 // G0ORX
 #define KEYONTIME                   500 // AFP17-22 key on time
 //========================================================= End Pin Assignments =================================
 //===============================================================================================================
@@ -453,7 +471,11 @@ extern struct maps myMapFiles[];
 #define SIXPI                       (3.0f * TPI)
 #define Si_5351_clock               SI5351_CLK2
 #define Si_5351_crystal             25000000L
+#ifdef V12
+#define MASTER_CLK_MULT             1ULL
+#else
 #define MASTER_CLK_MULT             4ULL                                         // QSD frontend requires 4x clock
+#endif
 #define WITHTERM                    1
 #define SIGNAL_TAU                  0.1
 #define ONEM_SIGNAL_TAU             (1.0 - SIGNAL_TAU)
@@ -638,6 +660,26 @@ extern int radioState, lastState;  // Used by the loop to monitor current state.
 //#endif
 
 //=== CW Filter ===
+#ifdef V12
+// ================= Quad Si stuff //AFP 09-24-23 V12 
+extern int Even_Divisor;
+extern int oldEven_Divisor;
+int EvenDivisor(long freq2); // AFP 9-24-23 V12
+extern unsigned long long Clk2SetFreq;             // AFP 09-27-22
+extern unsigned long long Clk1SetFreq;             // AFP 09-27-22
+extern unsigned long long Clk0SetFreq;
+extern int multiple;
+extern int oldMultiple;
+
+extern unsigned long long  pll_min;
+extern unsigned long long  pll_max;
+extern unsigned long long  f_pll_freq;
+extern unsigned long long  pll_freq;
+extern unsigned long long freq;
+extern unsigned long long oldfreq;
+extern unsigned long long freq1;
+//======== //AFP 09-24-23 V12
+#endif
 
 //------------------------- Global CW Filter declarations ----------
 
@@ -686,6 +728,8 @@ extern float32_t HP_DC_Filter_Coeffs2[];  // AFP 11-02-22
 
 
 //================== Global CW Correlation and FFT Variables =================
+
+
 extern float32_t audioMaxSquaredAve;
 
 extern float32_t corrResult;  //AFP 02-02-22
@@ -1187,7 +1231,11 @@ extern struct config_t {
   int currentBandB        = STARTUP_BAND;             // 4 bytes   JJP 7-3-23
   long currentFreqA       = CURRENT_FREQ_A;           // 4 bytes   JJP 7-3-23
   long currentFreqB       = CURRENT_FREQ_B;           // 4 bytes   JJP 7-3-23
+#ifdef V12
+  long freqCorrectionFactor = 5000; //AFP 09-24-23 V12
+#else
   long freqCorrectionFactor = 68000;
+#endif
 
   int equalizerRec[EQUALIZER_CELL_COUNT];             // 4 bytes each
   int equalizerXmt[EQUALIZER_CELL_COUNT] = {0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 0, 0, 0};   // Provide equalizer optimized for SSB voice based on Neville's tests.  KF5N November 2, 2023

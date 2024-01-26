@@ -661,6 +661,10 @@ AudioPlayQueue Q_out_L_Ex;
 AudioPlayQueue Q_out_R_Ex;
 
 // ===============
+#ifdef V12
+AudioConnection patchCord1(i2s_quadIn, 0, modeSelectInExL, 0);  //connect the Left input to the Left Int->Float converter
+AudioConnection patchCord2(i2s_quadIn, 1, modeSelectInExR, 0);  //connect the Right input to the Right Int->Float converter
+#else
 AudioConnection patchCord1(i2s_quadIn, 0, int2Float1, 0);  //connect the Left input to the Left Int->Float converter
 AudioConnection patchCord2(i2s_quadIn, 1, int2Float2, 0);  //connect the Right input to the Right Int->Float converter
 
@@ -670,7 +674,7 @@ AudioConnection_F32 patchCord5(comp1, 0, float2Int1, 0);  //Left.  makes Float c
 AudioConnection_F32 patchCord6(comp2, 0, float2Int2, 0);  //Right.  makes Float connections between objects
 //AudioConnection_F32     patchCord3(int2Float1, 0, float2Int1, 0); //Left.  makes Float connections between objects
 //AudioConnection_F32     patchCord4(int2Float2, 0, float2Int2, 0); //Right.  makes Float connections between objects
-
+#endif
 // ===============
 
 AudioConnection patchCord7(float2Int1, 0, modeSelectInExL, 0);  //Input Ex
@@ -748,7 +752,28 @@ RA8875 tft = RA8875(RA8875_CS, RA8875_RESET);
 
 SPISettings settingsA(70000000UL, MSBFIRST, SPI_MODE1);
 
+#ifdef V12
+// ===========  Quad Si5351 stuff //AFP 09-24-23 V12
+
+unsigned long long Clk2SetFreq;  //AFP 09-24-23 V12
+unsigned long long Clk0SetFreq;  // AFP 09-27-22
+unsigned long long Clk1SetFreq = 1000000000ULL;
+unsigned long long pll_min = 60000000000ULL;
+unsigned long long pll_max = 90000000000ULL;
+unsigned long long f_pll_freq;
+unsigned long long pll_freq;
+unsigned long long freq;
+int multiple = 126;
+int oldMultiple = 126;
+unsigned long long oldfreq;
+unsigned long long freq1;
+
 const uint32_t N_B_EX = 16;
+//AFP 09-24-23 V12 end Quad stuff
+#else
+
+const uint32_t N_B_EX = 16;
+#endif
 
 #ifdef G0ORX_AUDIO_DISPLAY
 float32_t mic_audio_buffer[256];
@@ -1603,8 +1628,10 @@ ulong samp_ptr;
 
 uint64_t output12khz;
 
+#ifndef V12
 unsigned long long Clk2SetFreq;                  // AFP 09-27-22
 unsigned long long Clk1SetFreq = 1000000000ULL;  // AFP 09-27-22
+#endif
 unsigned long ditLength;
 unsigned long transmitDitLength;  // JJP 8/19/23
 float dcfRefLevel;
@@ -2497,21 +2524,11 @@ void Splash() {
 *****/
 void setup() {
   Serial.begin(9600);
+
   setSyncProvider(getTeensy3Time);  // get TIME from real time clock with 3V backup battery
   setTime(now());
   Teensy3Clock.set(now());  // set the RTC
   T4_rtc_set(Teensy3Clock.get());
-
-#ifdef NETWORK
-  if (Ethernet.begin(my_mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-    } else if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println("Ethernet cable is not connected.");
-    }
-  }
-#endif
 
   sgtl5000_1.setAddress(LOW);
   sgtl5000_1.enable();
@@ -2519,9 +2536,15 @@ void setup() {
   AudioMemory_F32(10);
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micBiasDisable();  // G0ORX
+#ifdef V12
+  sgtl5000_1.micGain(1);
+  sgtl5000_1.lineInLevel(4);
+  sgtl5000_1.lineOutLevel(20);
+#else
   sgtl5000_1.micGain(20);
   sgtl5000_1.lineInLevel(0);
   sgtl5000_1.lineOutLevel(20);
+#endif
   sgtl5000_1.adcHighPassFilterDisable();  //reduces noise.  https://forum.pjrc.com/threads/27215-24-bit-audio-boards?p=78831&viewfull=1#post78831
   sgtl5000_2.setAddress(HIGH);
   sgtl5000_2.enable();
@@ -2610,6 +2633,10 @@ void setup() {
   network_initialized=EthernetInit();
 #endif
 
+#ifdef G0ORX_MIDI
+  MIDI_setup();
+#endif
+
   // =============== Into EEPROM section =================
   EEPROMStartup();
 
@@ -2659,6 +2686,32 @@ void setup() {
   // ========================  End set up of Parameters from EEPROM data ===============
   NCOFreq = 0;
 
+#ifdef V12
+/****************************************************************************************
+     start local oscillator Si5351 //AFP 09-24-23 V12
+  ****************************************************************************************/
+  si5351.init(SI5351_CRYSTAL_LOAD_10PF, Si_5351_crystal, freqCorrectionFactor);
+
+  pll_freq = freq * multiple;
+  //si5351.set_pll(pll_freq, SI5351_PLLA);
+  //si5351.set_pll(pll_freq, SI5351_PLLB);
+
+  si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_2MA);  //AFP 09-24-23 V12
+  si5351.drive_strength(SI5351_CLK1, SI5351_DRIVE_2MA);  //AFP 09-24-23 V12
+  si5351.drive_strength(SI5351_CLK2, SI5351_DRIVE_2MA);  //AFP 09-24-23 V12
+  //si5351.set_ms_source(SI5351_CLK0, SI5351_PLLB);
+  //si5351.set_ms_source(SI5351_CLK1, SI5351_PLLB);
+  /*
+  si5351.set_freq_manual(freq, pll_freq, SI5351_CLK0);
+  si5351.set_freq_manual(freq, pll_freq, SI5351_CLK1);
+  
+  si5351.set_phase(SI5351_CLK0, 0);
+  si5351.set_phase(SI5351_CLK1, multiple);
+  */
+
+  si5351.pll_reset(SI5351_PLLA);  //AFP 09-24-23 V12
+  si5351.pll_reset(SI5351_PLLB);  //AFP 09-24-23 V12
+#else
   /****************************************************************************************
      start local oscillator Si5351
   ****************************************************************************************/
@@ -2667,7 +2720,7 @@ void setup() {
   si5351.set_ms_source(SI5351_CLK2, SI5351_PLLB);                                //  Allows CLK1 and CLK2 to exceed 100 MHz simultaneously.
   si5351.drive_strength(SI5351_CLK1, SI5351_DRIVE_8MA);                          //AFP 10-13-22
   si5351.drive_strength(SI5351_CLK2, SI5351_DRIVE_8MA);                          //CWP AFP 10-13-22
-
+#endif
   if (xmtMode == CW_MODE && decoderFlag == DECODE_OFF) {
     decoderFlag = DECODE_OFF;  // JJP 7/1/23
   } else {
@@ -2675,7 +2728,6 @@ void setup() {
   }
 
   TxRxFreq = centerFreq + NCOFreq;
-
   InitializeDataArrays();
   splitOn = 0;  // Split VFO not active
   SetupMode(bands[currentBand].mode);
@@ -2683,9 +2735,8 @@ void setup() {
   //ditLength = STARTING_DITLENGTH;  // 80 = 1200 / 15 wpm
   //averageDit = ditLength;
   //averageDah = ditLength * 3L;
-
   float32_t theta = 0.0;              //AFP 10-25-22
-  for (int kf = 0; kf < 255; kf++) {  //Calc sine wave
+  for (int kf = 0; kf < 255; kf++) { //Calc sine wave
     theta = kf * 0.19634950849362;    // Simplify terms: theta = kf * 2 * PI * freqSideTone / 24000  JJP 6/28/23
     sinBuffer[kf] = sin(theta);
   }
@@ -2703,11 +2754,9 @@ void setup() {
   UpdateInfoWindow();
   DrawSpectrumDisplayContainer();
   RedrawDisplayScreen();
-
   mainMenuIndex = 0;             // Changed from middle to first. Do Menu Down to get to Calibrate quickly
   menuStatus = NO_MENUS_ACTIVE;  // Blank menu field
   ShowName();
-
   ShowBandwidth();
   FilterBandwidth();
   ShowFrequency();
@@ -2720,18 +2769,20 @@ void setup() {
   release_sec = 2.0;
   comp1.setPreGain_dB(-10);  //set the gain of the Left-channel gain processor
   comp2.setPreGain_dB(-10);  //set the gain of the Right-channel gain processor
-
 #ifdef G0ORX_FRONTPANEL
   FrontPanelInit();
 #endif
-
 #ifdef G0ORX_FRONTPANEL_2
   FrontPanel2Init();
 #endif
-
   sdCardPresent = SDPresentCheck();  // JJP 7/18/23
   lastState = 1111;                  // To make sure the receiver will be configured on the first pass through.  KF5N September 3, 2023
   decodeStates = state0;             // Initialize the Morse decoder.
+
+#ifdef V12
+  si5351.set_freq_manual(1ULL, 100000000, SI5351_CLK2);  //AFP 09-24-23 V12
+  si5351.output_enable(SI5351_CLK2, 0);                  //AFP 09-24-23 V12
+#endif
 
 }
 //============================================================== END setup() =================================================================
@@ -2756,8 +2807,19 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
   long ditTimerOff;  //AFP 09-22-22
   long dahTimerOn;
 
+  // G0ORX Iambic keyer changes
+  bool dit = false;
+  bool dah = false;
+  bool send_dit = false;
+  bool send_dah = false;
+
+
 #ifdef G0ORX_CAT
   CATSerialEvent();
+#endif
+
+#ifdef G0ORX_MIDI
+  MIDI_loop();
 #endif
 
 #ifdef NETWORK
@@ -2779,7 +2841,8 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
 #endif
   if (xmtMode == CW_MODE && (digitalRead(paddleDit) == HIGH && digitalRead(paddleDah) == HIGH))     radioState = CW_RECEIVE_STATE;  // Was using symbolic constants. Also changed in code below.  KF5N August 8, 2023
   if (xmtMode == CW_MODE && (digitalRead(paddleDit) == LOW && xmtMode == CW_MODE && keyType == 0))  radioState = CW_TRANSMIT_STRAIGHT_STATE;
-  if (xmtMode == CW_MODE && (keyPressedOn == 1 && xmtMode == CW_MODE && keyType == 1))              radioState = CW_TRANSMIT_KEYER_STATE;
+  //if (xmtMode == CW_MODE && (keyPressedOn == 1 && xmtMode == CW_MODE && keyType == 1))              radioState = CW_TRANSMIT_KEYER_STATE;
+  if (xmtMode == CW_MODE && ((digitalRead(paddleDit) == LOW || digitalRead(paddleDah) == LOW)&& xmtMode == CW_MODE && (keyType == 1 || keyType == 2))) radioState = CW_TRANSMIT_KEYER_STATE;
   if (lastState != radioState) {
     SetFreq();  // Update frequencies if the radio state has changed.
   }
@@ -2817,6 +2880,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
       Q_in_R.end();
       Q_in_L_Ex.begin();
       Q_in_R_Ex.begin();
+#ifndef V12
       comp1.setPreGain_dB(currentMicGain);
       comp2.setPreGain_dB(currentMicGain);
       if (compressorFlag == 1) {
@@ -2826,6 +2890,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
           SetupMyCompressors(use_HP_filter, 0.0, comp_ratio, 0.01, 0.01);
         }
       }
+#endif
       xrState = TRANSMIT_STATE;
       // centerTuneFlag = 1;  Not required with revised tuning scheme.  KF5N July 22, 2023
       digitalWrite(MUTE, HIGH);  //  Mute Audio  (HIGH=Mute)
@@ -2837,8 +2902,16 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
       modeSelectInExL.gain(0, 1);
       modeSelectOutL.gain(0, 0);
       modeSelectOutR.gain(0, 0);
+#ifdef V12
+      modeSelectOutExL.gain(0, 1);  //AFP 09-24-23 V12
+      modeSelectOutExR.gain(0, 1);  //AFP 09-24-23 V12
+      Serial.print("powerOutSSB[currentBand]= ");
+      Serial.println(powerOutSSB[currentBand]);  //AFP 09-24-23 V12
+      ShowTransmitReceiveStatus();
+#else
       modeSelectOutExL.gain(0, powerOutSSB[currentBand]);  //AFP 10-21-22
       modeSelectOutExR.gain(0, powerOutSSB[currentBand]);  //AFP 10-21-22
+#endif
       ShowTransmitReceiveStatus();
 #if (defined(G0ORX_FRONTPANEL) || defined(G0ORX_FRONTPANEL_2) || defined(G0ORX_CAT))
       while (my_ptt == LOW) {
@@ -2974,7 +3047,29 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
         modeSelectOutL.gain(0, 0);
         modeSelectOutR.gain(0, 0);
 
-        if (digitalRead(paddleDit) == LOW) {  // Keyer Dit
+        dit = digitalRead(paddleDit) == LOW;
+        dah = digitalRead(paddleDah) == LOW;
+
+        if(keyType==2) { // Iambic-A
+          if(dit && dah) {
+            // both pressed - alternate dit dah
+            if(send_dah==false) {
+              send_dit=false;
+              send_dah=true;
+            } else {
+              send_dit=true;
+              send_dah=false;
+            }
+          } else {
+            send_dit = dit;
+            send_dah = dah;
+          }
+        } else {
+          send_dit = dit;
+          send_dah = dah;
+        }
+
+        if (send_dit) {  // Keyer Dit
           cwTimer = millis();
           ditTimerOn = millis();
           //          while (millis() - ditTimerOn <= ditLength) {
@@ -3004,7 +3099,7 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
             keyPressedOn = 0;
           }
         } else {
-          if (digitalRead(paddleDah) == LOW) {  //Keyer DAH
+          if (send_dah) {  //Keyer DAH
             cwTimer = millis();
             dahTimerOn = millis();
             while (millis() - dahTimerOn <= 3UL * transmitDitLength) {  // JJP 8/19/23

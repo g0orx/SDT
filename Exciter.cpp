@@ -70,10 +70,6 @@ void ExciterIQData()
     arm_fir_decimate_f32(&FIR_dec2_EX_I, float_buffer_L_EX, float_buffer_L_EX, 512);
     arm_fir_decimate_f32(&FIR_dec2_EX_Q, float_buffer_R_EX, float_buffer_R_EX, 512);
 
-#ifdef G0ORX_AUDIO_DISPLAY
-    arm_copy_f32 (float_buffer_R_EX, mic_audio_buffer, 256);
-#endif
-
     //============================  Transmit EQ  ========================  AFP 10-02-22
     if (xmitEQFlag == ON ) {
       DoExciterEQ();
@@ -82,6 +78,10 @@ void ExciterIQData()
 
 
     arm_copy_f32 (float_buffer_L_EX, float_buffer_R_EX, 256);
+
+#ifdef G0ORX_AUDIO_DISPLAY
+    arm_copy_f32 (float_buffer_R_EX, mic_audio_buffer, 256);
+#endif
 
     // =========================    End CW Xmit
     //--------------  Hilbert Transformers
@@ -100,8 +100,12 @@ void ExciterIQData()
      **********************************************************************************/
 
     if (bands[currentBand].mode == DEMOD_LSB) { //AFP 12-27-21
+#ifdef V12
+      arm_scale_f32 (float_buffer_L_EX, IQXAmpCorrectionFactor[currentBandA], float_buffer_L_EX, 256); //AFP 09-24-23 V12
+#else
       //arm_scale_f32 (float_buffer_L_EX, -IQXAmpCorrectionFactor[currentBandA], float_buffer_L_EX, 256);
       arm_scale_f32 (float_buffer_L_EX, + IQXAmpCorrectionFactor[currentBandA], float_buffer_L_EX, 256);     // Flip SSB sideband KF5N, minus sign was original
+#endif
       IQPhaseCorrection(float_buffer_L_EX, float_buffer_R_EX, IQXPhaseCorrectionFactor[currentBandA], 256);
     }
     else if (bands[currentBand].mode == DEMOD_USB) { //AFP 12-27-21

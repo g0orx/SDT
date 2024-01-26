@@ -119,17 +119,10 @@ void ExecuteButtonPress(int val)
       break;
 
     case MAIN_MENU_DN:  // 4
-      if(my_ptt==LOW) {
-        my_ptt=HIGH;
-      } else {
-        my_ptt=LOW;
-      }
-/*
       ButtonMenuDecrease();
       if (menuStatus != NO_MENUS_ACTIVE) {  // Doing primary menu
         ShowMenu(&topMenus[mainMenuIndex], PRIMARY_MENU);
       }
-*/
       break;
 
     case BAND_DN:  // 5

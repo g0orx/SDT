@@ -89,7 +89,11 @@ int CalibrateOptions(int IQChoice) {
       break;
     case 4:  // SSB PA Cal
       SSBPowerCalibrationFactor[currentBand] = GetEncoderValueLive(-2.0, 2.0, SSBPowerCalibrationFactor[currentBand], 0.001, (char *)"SSB PA Cal: ");
+#ifdef V12
+      powerOutSSB[currentBandA] = (-.2355*transmitPowerLevel*transmitPowerLevel+3.7536*transmitPowerLevel-2.04) * SSBPowerCalibrationFactor[currentBandA]; //AFP 09-24-23 V12
+#else
       powerOutSSB[currentBand] = (-.0133 * transmitPowerLevel * transmitPowerLevel + .7884 * transmitPowerLevel + 4.5146) * SSBPowerCalibrationFactor[currentBand];  // AFP 10-21-22
+#endif
       val = ReadSelectedPushButton();
       if (val != BOGUS_PIN_READ) {        // Any button press??
         val = ProcessButtonPress(val);    // Use ladder value to get menu choice
