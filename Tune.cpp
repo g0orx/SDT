@@ -152,9 +152,9 @@ void SetFreq() {  //AFP 09-24-23 V12
     if (multiple != oldMultiple) {
       si5351.pll_reset(SI5351_PLLA);
       si5351.pll_reset(SI5351_PLLB);
-/*
+#ifndef G0ORX_CAT
       Serial.println("Reset");
-*/
+#endif
     }
     oldMultiple = multiple;
 
@@ -183,7 +183,7 @@ void SetFreq() {  //AFP 09-24-23 V12
   }
 
   //si5351.output_enable(SI5351_CLK2, 0);
-/*  
+#ifndef G0ORX_CAT
   Serial.print("centerFreq=");
   Serial.println(centerFreq);
   Serial.print("Clk1SetFreq=");
@@ -194,7 +194,7 @@ void SetFreq() {  //AFP 09-24-23 V12
   Serial.println(pll_freq);
   Serial.print("multiple=");
   Serial.println(multiple);
-*/
+#endif
   DrawFrequencyBarValue();
 }
 
