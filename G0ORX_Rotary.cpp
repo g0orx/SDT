@@ -14,7 +14,7 @@
 
 #ifdef G0ORX_FRONTPANEL
 
-//#define DEBUG_MESSAGES
+#define DEBUG_MESSAGES
 
 #ifdef DEBUG_MESSAGES
 #define Debug(x) Serial.println(x)

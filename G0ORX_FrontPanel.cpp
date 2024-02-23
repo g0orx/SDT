@@ -33,7 +33,7 @@
 
 #ifdef G0ORX_FRONTPANEL
 
-//#define DEBUG_MESSAGES
+#define DEBUG_MESSAGES
 
 #ifdef DEBUG_MESSAGES
 #define Debug(x) Serial.println(x)
@@ -175,26 +175,31 @@ static void interrupt2() {
       }
       break;
     default:
-      Debug(String(__FUNCTION__)+": "+String(pin)+"!");
+      // 255 sometimes caused by switch bounce
+      //Debug(String(__FUNCTION__)+": "+String(pin)+"!");
       break;
   }
   __enable_irq();
 }
 
 void FrontPanelInit() {
-  // Set Wire1 I2C bus to 1.7MHz and start
-  Wire1.setClock(1700000UL);
+  bool failed=false;
+
+  // Set Wire1 I2C bus to 1MHz and start
+  //Wire1.setClock(1000000UL);
   Wire1.begin();
 
   if (!mcp1.begin_I2C(MCP23017_ADDR_1,&Wire1)) {
     ShowMessageOnWaterfall("MCP23017 not found at 0x"+String(MCP23017_ADDR_1,HEX));
-    return;
+    failed=true;
   }
 
   if (!mcp2.begin_I2C(MCP23017_ADDR_2,&Wire1)) {
     ShowMessageOnWaterfall("MCP23017 not found at 0x"+String(MCP23017_ADDR_2,HEX));
-    return;    
+    failed=true;
   }
+
+  if(failed) return;
 
   // setup the mcp23017 devices
   mcp1.setupInterrupts(true, true, LOW);
@@ -237,6 +242,7 @@ void FrontPanelInit() {
 
 FASTRUN
 void FrontPanelSetLed(int led, uint8_t state) {
+  Debug(String(__FUNCTION__)+": led="+String(led)+" state="+String(state));
   switch (led) {
     case LED1:
       mcp2.digitalWrite(LED_1_PORT, state);

@@ -874,6 +874,9 @@ void BandInformation()  // SSB or CW
     case DEMOD_SAM:         //AFP 11-01-22
       tft.print("(SAM) ");  //AFP 11-01-22
       break;
+    case DEMOD_FM:          // G0ORX 02/21/24
+      tft.print("(FM)  ");  // G0ORX 02/21/24
+      break;
   }
   ShowCurrentPowerSetting();
 }
@@ -905,12 +908,19 @@ void ShowCurrentPowerSetting() {
     // show frequency
 *****/
 void FormatFrequency(long freq, char *freqBuffer) {
+/* // G0ORX 02/20/2024
   char outBuffer[15];
   int i;
   int len;
   ltoa((long)freq, outBuffer, 10);
   len = strlen(outBuffer);
-
+*/
+  if(freq>=1000000) {
+    sprintf(freqBuffer,"%4ld.%03ld.%03ld",freq/(long)1000000,(freq%(long)1000000)/(long)1000,freq%(long)1000);
+  } else {
+    sprintf(freqBuffer,"     %03ld.%03ld",freq%(long)1000000/(long)1000,freq%(long)1000);
+  }
+/* // G0ORX 2/20/2024
   switch (len) {
     case 6:  // below 530.999 KHz
       freqBuffer[0] = outBuffer[0];
@@ -937,7 +947,7 @@ void FormatFrequency(long freq, char *freqBuffer) {
       freqBuffer[i] = '\0';  // Make it a string
       break;
 
-    case 8:  // 10 MHz - 30MHz
+    case 8:  // 10 MHz - 99MHz // G0ORX 2/20/2024
       freqBuffer[0] = outBuffer[0];
       freqBuffer[1] = outBuffer[1];
       freqBuffer[2] = FREQ_SEP_CHARACTER;  // Add separation charcter
@@ -950,7 +960,17 @@ void FormatFrequency(long freq, char *freqBuffer) {
       }
       freqBuffer[i] = '\0';  // Make it a string
       break;
+
+    case 9: // 100MHz to 999MHz // G0ORX 2/20/2024
+      freqBuffer[0] = outBuffer[0];
+      freqBuffer[1] = outBuffer[1];
+      freqBuffer[2] = outBuffer[2];
+      break;
+    case 10: // 1000MHz to 9999 MHz // G0ORX 2/20/24
+
+      break;
   }
+*/
 
   /*
 
@@ -1021,14 +1041,14 @@ FASTRUN void ShowFrequency() {
     } else {
       tft.setTextColor(RA8875_GREEN);  // In US band
     }
-    tft.fillRect(0, FREQUENCY_Y - 14, tft.getFontWidth() * 11, tft.getFontHeight(), RA8875_BLACK);  // JJP 7/15/23
+    tft.fillRect(0, FREQUENCY_Y - 14, tft.getFontWidth() * 13, tft.getFontHeight(), RA8875_BLACK);  // JJP 7/15/23 // G0ORX 2/20/24
     tft.setCursor(0, FREQUENCY_Y - 17);                                                             // To adjust for Greg's font change jjp 7/14/23
     tft.print(freqBuffer);                                                                          // Show VFO_A
     //tft.setFont(&FreeMonoBold18pt7b);               // KF5N
     //    tft.setFontScale(1.5);                      // KF5N
-    tft.setFontScale(1, 2);  // JJP 7/15/23
+    tft.setFontScale(1, 1);  // JJP 7/15/23 // was 1,2
     tft.setTextColor(RA8875_LIGHT_GREY);
-    tft.setCursor(FREQUENCY_X_SPLIT + 60, FREQUENCY_Y - 15);
+    tft.setCursor(FREQUENCY_X_SPLIT + tft.getFontWidth() * 4, FREQUENCY_Y - 15); // G0ORX 2/20/24
     FormatFrequency(currentFreqB, freqBuffer);
     tft.print(freqBuffer);
   } else {  // Show VFO_B
@@ -1037,7 +1057,7 @@ FASTRUN void ShowFrequency() {
     //tft.setFontScale(2);   //KF5N   JJP 7/15/23
     tft.setFontScale(3, 2);                                                                                              // JJP 7/15/23
                                                                                                                          //  tft.fillRect(FREQUENCY_X_SPLIT - 60, FREQUENCY_Y - 12, VFOB_PIXEL_LENGTH, FREQUENCY_PIXEL_HI, RA8875_BLACK);  //JJP 7/15/23
-    tft.fillRect(FREQUENCY_X_SPLIT - 60, FREQUENCY_Y - 14, tft.getFontWidth() * 10, tft.getFontHeight(), RA8875_BLACK);  //JJP 7/15/23
+    tft.fillRect(FREQUENCY_X_SPLIT - 60, FREQUENCY_Y - 14, tft.getFontWidth() * 13, tft.getFontHeight(), RA8875_BLACK);  //JJP 7/15/23 // G0ORX 2/20/24
     tft.setCursor(FREQUENCY_X_SPLIT - 60, FREQUENCY_Y - 12);
     if (TxRxFreq < bands[currentBandB].fBandLow || TxRxFreq > bands[currentBandB].fBandHigh) {
       tft.setTextColor(RA8875_RED);
@@ -1841,6 +1861,13 @@ FASTRUN void DrawBandWidthIndicatorBar()  // AFP 10-30-22
       break;
 
     case DEMOD_SAM:
+      tft.fillRect(centerLine - filterWidth / 2 + oldCursorPosition, SPECTRUM_TOP_Y + 20, filterWidth, SPECTRUM_HEIGHT - 20, RA8875_BLACK);                //AFP 10-30-22
+      tft.fillRect(centerLine - (filterWidth / 2) * 0.93 + newCursorPosition, SPECTRUM_TOP_Y + 20, filterWidth * 0.95, SPECTRUM_HEIGHT - 20, FILTER_WIN);  //AFP 10-30-22
+                                                                                                                                                           //      tft.drawFastVLine(centerLine + oldCursorPosition, SPECTRUM_TOP_Y + 20, h - 10, RA8875_BLACK);                 // AFP 10-30-22
+                                                                                                                                                           //      tft.drawFastVLine(centerLine + newCursorPosition, SPECTRUM_TOP_Y + 20, h - 10, RA8875_CYAN);                 //AFP 10-30-22*/
+      break;
+
+    case DEMOD_FM: // G0ORX 02/21/24
       tft.fillRect(centerLine - filterWidth / 2 + oldCursorPosition, SPECTRUM_TOP_Y + 20, filterWidth, SPECTRUM_HEIGHT - 20, RA8875_BLACK);                //AFP 10-30-22
       tft.fillRect(centerLine - (filterWidth / 2) * 0.93 + newCursorPosition, SPECTRUM_TOP_Y + 20, filterWidth * 0.95, SPECTRUM_HEIGHT - 20, FILTER_WIN);  //AFP 10-30-22
                                                                                                                                                            //      tft.drawFastVLine(centerLine + oldCursorPosition, SPECTRUM_TOP_Y + 20, h - 10, RA8875_BLACK);                 // AFP 10-30-22

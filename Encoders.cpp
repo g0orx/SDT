@@ -69,6 +69,12 @@ void FilterSetSSB() {
         FilterBandwidth();
         InitFilterMask();
         break;
+      case DEMOD_FM: // G0ORX 02/21/24
+        bands[currentBand].FHiCut = bands[currentBand].FHiCut - filter_change * 50 * ENCODER_FACTOR;
+        bands[currentBand].FLoCut = -bands[currentBand].FHiCut;
+        FilterBandwidth();
+        InitFilterMask();
+        break;
     }
     // =============  AFP 10-27-22
 

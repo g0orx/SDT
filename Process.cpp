@@ -20,6 +20,7 @@ char atom, currentAtom;
  *****/
 void ProcessIQData()
 {
+
   if (keyPressedOn == 1) { //AFP 09-01-22
     return;
   }
@@ -325,7 +326,7 @@ void ProcessIQData()
         audioSpectBuffer[1024 - k] = (iFFT_buffer[k] * iFFT_buffer[k]);
       }
       for (int k = 0; k < 256; k++) {
-        if (bands[currentBand].mode == 0  || bands[currentBand].mode == DEMOD_AM || bands[currentBand].mode == DEMOD_SAM) {  //AFP 10-26-22
+        if (bands[currentBand].mode == 0  || bands[currentBand].mode == DEMOD_AM || bands[currentBand].mode == DEMOD_SAM || bands[currentBand].mode == DEMOD_FM) {  //AFP 10-26-22 // G0ORX 02/21/24
           //audioYPixel[k] = 20+  map((int)displayScale[currentScale].dBScale * log10f((audioSpectBuffer[1024 - k] + audioSpectBuffer[1024 - k + 1] + audioSpectBuffer[1024 - k + 2]) / 3), 0, 100, 0, 120);
           audioYPixel[k] = 50 +  map(15 * log10f((audioSpectBuffer[1024 - k] + audioSpectBuffer[1024 - k + 1] + audioSpectBuffer[1024 - k + 2]) / 3), 0, 100, 0, 120);
         }
@@ -431,10 +432,12 @@ void ProcessIQData()
            arm_copy_f32(float_buffer_R, float_buffer_L, FFT_length / 2);*/
         //  ===========================
         break;
-        case DEMOD_SAM : //AFP 11-03-22
+      case DEMOD_SAM : //AFP 11-03-22
         AMDecodeSAM();
         break;
-        
+      case DEMOD_FM: // G0ORX 02/21/24
+        FMDemod();
+        break;
     }
     // == AFP 10-30-22
 

@@ -17,7 +17,7 @@
 #endif
 
 // G0ORX_CAT will include ts-2000 CAT interface over USB Serial (the same port used for programming the Teensy 4.1)
-#define G0ORX_CAT
+//#define G0ORX_CAT
 
 // G0ORX_AUDIO_DISPLAY draws a Time Domain plot of the Microphone or CW  Audio when transmitting
 //#define G0ORX_AUDIO_DISPLAY
@@ -545,9 +545,10 @@ extern int radioState, lastState;  // Used by the loop to monitor current state.
 #define DEMOD_LSB                   1
 #define DEMOD_AM                    2
 #define DEMOD_SAM                   3
-#define DEMOD_MAX                   3 // AFP 11-03-22
+#define DEMOD_FM                    4 // G0ORX 02/21/24
+#define DEMOD_MAX                   5 // AFP 11-03-22 // G0ORX 02/21/24
 
-#define DEMOD_IQ                    4
+#define DEMOD_IQ                    5
 #define DEMOD_DCF77                 29        // set the clock with the time signal station DCF77
 #define BROADCAST_BAND              0
 #define HAM_BAND                    1
@@ -651,10 +652,23 @@ extern int radioState, lastState;  // Used by the loop to monitor current state.
 #define BAND_15M                  4
 #define BAND_12M                  5
 #define BAND_10M                  6
+#ifdef V12
+#define BAND_6M                   7  // G0ORX
+#define BAND_4M                   8  // G0ORX
+#define BAND_2M                   9  // G0ORX
+#endif
 
 #define FIRST_BAND                BAND_80M
-#define LAST_BAND                 BAND_10M    //AFP 1-28-21
-#define NUMBER_OF_BANDS           7           //AFP 1-28-21
+#ifdef V12
+#define LAST_BAND                 BAND_2M     // G0ORX added 6M, 4M and 2M bands //AFP 1-28-21
+#else
+#define LAST_BAND                 BAND_10M
+#endif
+#ifdef V12
+#define NUMBER_OF_BANDS           10           // G0ORX added 6M, 4M and 2M bands//AFP 1-28-21
+#else
+#define NUMBER_OF_BANDS           7
+#endif
 //#define STARTUP_BAND              BAND_40M    //AFP 1-28-21
 
 //#endif
@@ -2133,6 +2147,8 @@ float32_t AlphaBetaMag(float32_t  inphase, float32_t  quadrature);
 void AltNoiseBlanking(float* insamp, int Nsam, float* E);
 void AMDemodAM();
 void AMDecodeSAM(); // AFP 11-03-22
+void FMDemod_init(); // G0ORX 02/21/24
+void FMDemod(); // G0ORX 02/21/24
 void AssignEEPROMObjectToVariable();
 
 int  BandOptions();

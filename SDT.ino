@@ -488,6 +488,14 @@ V046d June 27, 2023  Jack Purdum (W8TEE) and includes changes by Greg:
 #include "SDT.h"
 #endif
 
+#define DEBUG_MESSAGES
+
+#ifdef DEBUG_MESSAGES
+#define Debug(x) Serial.println(x)
+#else
+#define Debug(x)
+#endif
+
 #if defined(G0ORX_FRONTPANEL) || defined(G0ORX_FRONTPANEL_2) || defined(G0ORX_CAT)
 int my_ptt=HIGH;  // Active LOW
 
@@ -538,20 +546,25 @@ struct band bands[NUMBER_OF_BANDS] = {  //AFP Changed 1-30-21 // G0ORX Changed A
 // Calibration done with TinySA as signal generator with -73dBm levels (S9) at the FT8 frequencies
 // with V010 QSD with the 12V mod of the pre-amp
 #if defined(ITU_REGION) && ITU_REGION == 1
-  3700000, 3500000, 3800000, "80M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20,
-  7150000, 7000000, 7200000, "40M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20,
+  {3700000, 3500000, 3800000, "80M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20},
+  {7150000, 7000000, 7200000, "40M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20},
 #elif defined(ITU_REGION) && ITU_REGION == 2
-  3700000, 3500000, 4000000, "80M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20,
-  7150000, 7000000, 7300000, "40M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20,
+  {3700000, 3500000, 4000000, "80M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20},
+  {7150000, 7000000, 7300000, "40M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20},
 #elif defined(ITU_REGION) && ITU_REGION == 3
-  3700000, 3500000, 3900000, "80M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20,
-  7150000, 7000000, 7200000, "40M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20,
+  {3700000, 3500000, 3900000, "80M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20},
+  {7150000, 7000000, 7200000, "40M", DEMOD_LSB, -200, -3000, 1, HAM_BAND, -2.0, 20, 20},
 #endif
-  14200000, 14000000, 14350000, "20M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 2.0, 20, 20,
-  18100000, 18068000, 18168000, "17M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 2.0, 20, 20,
-  21200000, 21000000, 21450000, "15M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 5.0, 20, 20,
-  24920000, 24890000, 24990000, "12M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 6.0, 20, 20,
-  28350000, 28000000, 29700000, "10M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 8.5, 20, 20
+  {14200000, 14000000, 14350000, "20M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 2.0, 20, 20},
+  {18100000, 18068000, 18168000, "17M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 2.0, 20, 20},
+  {21200000, 21000000, 21450000, "15M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 5.0, 20, 20},
+  {24920000, 24890000, 24990000, "12M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 6.0, 20, 20},
+  {28350000, 28000000, 29700000, "10M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 8.5, 20, 20},
+#ifdef V12
+  {50300000, 50000000, 52000000, "6M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 8.5, 20, 20},  // G0ORX
+  {70100000, 70000000, 70500000, "4M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 8.5, 20, 20},   // G0ORX
+  {144300000, 144000000, 148000000, "2M", DEMOD_USB, 3000, 200, 1, HAM_BAND, 8.5, 20, 20}   // G0ORX
+#endif
 };
 
 const char *topMenus[] = { "CW Options", "RF Set", "VFO Select",
@@ -1895,10 +1908,17 @@ float32_t P_est_mult = 1.0 / (sqrtf(1.0 - P_est * P_est));
 
 float32_t phaseLO = 0.0;
 float32_t pop_ratio;
-float32_t powerOutSSB[7] = { 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03 };                       // AFP 10-28-22
-float32_t powerOutCW[7] = { 0.017, 0.02, 0.025, 0.03, 0.03, 0.039, 0.02 };                     // AFP 10-28-22
-float32_t CWPowerCalibrationFactor[7] = { 0.019, 0.0190, .0190, .0190, .0190, .0190, .019 };   //AFP 10-29-22
-float32_t SSBPowerCalibrationFactor[7] = { 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008 };  //AFP 10-29-22       = 0.008;  //AFP 10-21-22
+#ifdef V12
+float32_t powerOutSSB[NUMBER_OF_BANDS] = { 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03 };                       // AFP 10-28-22
+float32_t powerOutCW[NUMBER_OF_BANDS] = { 0.017, 0.02, 0.025, 0.03, 0.03, 0.039, 0.02, 0.02, 0.02, 0.02 };                     // AFP 10-28-22
+float32_t CWPowerCalibrationFactor[NUMBER_OF_BANDS] = { 0.019, 0.0190, .0190, .0190, .0190, .0190, .019, 0.19, 0.19, 0.19 };   //AFP 10-29-22
+float32_t SSBPowerCalibrationFactor[NUMBER_OF_BANDS] = { 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008 };  //AFP 10-29-22       = 0.008;  //AFP 10-21-22
+#else
+float32_t powerOutSSB[NUMBER_OF_BANDS] = { 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03 };                       // AFP 10-28-22
+float32_t powerOutCW[NUMBER_OF_BANDS] = { 0.017, 0.02, 0.025, 0.03, 0.03, 0.039, 0.02 };                     // AFP 10-28-22
+float32_t CWPowerCalibrationFactor[NUMBER_OF_BANDS] = { 0.019, 0.0190, .0190, .0190, .0190, .0190, .019 };   //AFP 10-29-22
+float32_t SSBPowerCalibrationFactor[NUMBER_OF_BANDS] = { 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008 };  //AFP 10-29-22       = 0.008;  //AFP 10-21-22
+#endif
 float32_t Q_old = 0.2;
 float32_t Q_sum;
 float32_t DMAMEM R_BufferOffset[BUFFER_SIZE * N_B];
@@ -2525,11 +2545,14 @@ void Splash() {
 void setup() {
   Serial.begin(9600);
 
+  Debug(String(__FUNCTION__));
+
   setSyncProvider(getTeensy3Time);  // get TIME from real time clock with 3V backup battery
   setTime(now());
   Teensy3Clock.set(now());  // set the RTC
   T4_rtc_set(Teensy3Clock.get());
 
+Debug(String(__LINE__));
   sgtl5000_1.setAddress(LOW);
   sgtl5000_1.enable();
   AudioMemory(500);  //  Increased to 450 from 400.  Memory was hitting max.  KF5N August 31, 2023
@@ -2550,7 +2573,7 @@ void setup() {
   sgtl5000_2.enable();
   sgtl5000_2.inputSelect(AUDIO_INPUT_LINEIN);
   sgtl5000_2.volume(0.5);
-
+Debug(String(__LINE__));
   pinMode(FILTERPIN15M, OUTPUT);
   pinMode(FILTERPIN20M, OUTPUT);
   pinMode(FILTERPIN40M, OUTPUT);
@@ -2576,7 +2599,7 @@ void setup() {
   digitalWrite(TFT_SCLK, HIGH);
   pinMode(TFT_CS, OUTPUT);
   digitalWrite(TFT_CS, HIGH);
-
+Debug(String(__LINE__));
   arm_fir_init_f32(&FIR_Hilbert_L, 100, FIR_Hilbert_coeffs_45, FIR_Hilbert_state_L, 256);  //AFP01-16-22
   arm_fir_init_f32(&FIR_Hilbert_R, 100, FIR_Hilbert_coeffs_neg45, FIR_Hilbert_state_R, 256);
   arm_fir_init_f32(&FIR_CW_DecodeL, 64, CW_Filter_Coeffs2, FIR_CW_DecodeL_state, 256);  //AFP 10-25-22
@@ -2595,7 +2618,7 @@ void setup() {
   *(digital_pin_to_info_PGM + 13)->pad = iospeed_display;  //clk
   *(digital_pin_to_info_PGM + 11)->pad = iospeed_display;  //MOSI
   *(digital_pin_to_info_PGM + TFT_CS)->pad = iospeed_display;
-
+Debug(String(__LINE__));
 #if !(defined(G0ORX_FRONTPANEL) || defined(G0ORX_FRONTPANEL_2))
   tuneEncoder.begin(true);
   volumeEncoder.begin(true);
@@ -2613,7 +2636,7 @@ void setup() {
 #endif
   attachInterrupt(digitalPinToInterrupt(KEYER_DIT_INPUT_TIP), KeyTipOn, CHANGE);  // Changed to keyTipOn from KeyOn everywhere JJP 8/31/22
   attachInterrupt(digitalPinToInterrupt(KEYER_DAH_INPUT_RING), KeyRingOn, CHANGE);
-
+Debug(String(__LINE__));
   tft.begin(RA8875_800x480, 8, 20000000UL, 4000000UL);  // parameter list from library code
   tft.setRotation(0);
 
@@ -2626,7 +2649,7 @@ void setup() {
   tft.writeTo(L1);
 
   Splash();
-
+Debug(String(__LINE__));
   sdCardPresent = InitializeSDCard();  // Is there an SD card that can be initialized?
 
 #ifdef NETWORK
@@ -2636,15 +2659,15 @@ void setup() {
 #ifdef G0ORX_MIDI
   MIDI_setup();
 #endif
-
+Debug(String(__LINE__));
   // =============== Into EEPROM section =================
   EEPROMStartup();
 
   syncEEPROM = 1;  // We've read current EEPROM values
 #ifndef G0ORX_CAT
-#ifdef DEBUG
+//#ifdef DEBUG
   EEPROMShow();
-#endif
+//#endif
 #endif
 
 
@@ -2663,7 +2686,7 @@ void setup() {
     EEPROMRead();  // Call to reset switch matrix values
   }                // KD0RC end
   Remove this line and the matching block comment line above to activate. */
-
+Debug(String(__LINE__));
   spectrum_x = 10;
   spectrum_y = 150;
   xExpand = 1.4;
@@ -2685,7 +2708,7 @@ void setup() {
 
   // ========================  End set up of Parameters from EEPROM data ===============
   NCOFreq = 0;
-
+Debug(String(__LINE__));
 #ifdef V12
 /****************************************************************************************
      start local oscillator Si5351 //AFP 09-24-23 V12
@@ -2721,6 +2744,7 @@ void setup() {
   si5351.drive_strength(SI5351_CLK1, SI5351_DRIVE_8MA);                          //AFP 10-13-22
   si5351.drive_strength(SI5351_CLK2, SI5351_DRIVE_8MA);                          //CWP AFP 10-13-22
 #endif
+Debug(String(__LINE__));
   if (xmtMode == CW_MODE && decoderFlag == DECODE_OFF) {
     decoderFlag = DECODE_OFF;  // JJP 7/1/23
   } else {
@@ -2731,7 +2755,7 @@ void setup() {
   InitializeDataArrays();
   splitOn = 0;  // Split VFO not active
   SetupMode(bands[currentBand].mode);
-
+Debug(String(__LINE__));
   //ditLength = STARTING_DITLENGTH;  // 80 = 1200 / 15 wpm
   //averageDit = ditLength;
   //averageDah = ditLength * 3L;
@@ -2769,6 +2793,7 @@ void setup() {
   release_sec = 2.0;
   comp1.setPreGain_dB(-10);  //set the gain of the Left-channel gain processor
   comp2.setPreGain_dB(-10);  //set the gain of the Right-channel gain processor
+Debug(String(__LINE__));
 #ifdef G0ORX_FRONTPANEL
   FrontPanelInit();
 #endif
@@ -2779,11 +2804,13 @@ void setup() {
   lastState = 1111;                  // To make sure the receiver will be configured on the first pass through.  KF5N September 3, 2023
   decodeStates = state0;             // Initialize the Morse decoder.
 
+Debug(String(__LINE__));
 #ifdef V12
   si5351.set_freq_manual(1ULL, 100000000, SI5351_CLK2);  //AFP 09-24-23 V12
   si5351.output_enable(SI5351_CLK2, 0);                  //AFP 09-24-23 V12
 #endif
 
+  Debug("exit setup ... to loop");
 }
 //============================================================== END setup() =================================================================
 //===============================================================================================================================
@@ -2812,7 +2839,6 @@ FASTRUN void loop()  // Replaced entire loop() with Greg's code  JJP  7/14/23
   bool dah = false;
   bool send_dit = false;
   bool send_dah = false;
-
 
 #ifdef G0ORX_CAT
   CATSerialEvent();

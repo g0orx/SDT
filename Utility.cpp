@@ -2,6 +2,14 @@
 #include "SDT.h"
 #endif
 
+#define DEBUG_MESSAGES
+
+#ifdef DEBUG_MESSAGES
+#define Debug(x) Serial.println(x)
+#else
+#define Debug(x)
+#endif
+
 /*****
   Purpose: Generate Array with variable sinewave frequency tone AFP 05-17-22
   Parameter list:
@@ -593,6 +601,9 @@ void SetupMode(int sideBand)
       case DEMOD_AM :
         bands[currentBand].FHiCut =  -bands[currentBand].FLoCut;
         break;
+      case DEMOD_FM:
+        bands[currentBand].FHiCut =  -bands[currentBand].FLoCut;
+        break;
     }
   }
   ShowBandwidth();
@@ -626,6 +637,7 @@ void SetBand()
 
 // G0ORX - Split code out ot allow use from other code
 void ShowMessageOnWaterfall(String message) {
+  Debug(message);
   tft.setFontScale((enum RA8875tsize) 1);
   tft.setForegroundColor(RA8875_RED);
   tft.setCursor(20, 300); 
