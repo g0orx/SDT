@@ -9,7 +9,7 @@
 // G0ORX_FRONTPANEL and G0ORX_FRONTPANEL2 are mutually exclusive  (only enable 1 of them if at all)
 // G0ORX_FRONTPANEL is the MCP23017 front panel for the encoders and push buttons
 // G0ORX_FRONTPANEL_2 is the Raspberry Pi Pico front panel
-//#define G0ORX_FRONTPANEL
+#define G0ORX_FRONTPANEL
 //#define G0ORX_FRONTPANEL_2
 
 #if (defined(G0ORX_FRONTPANEL) && defined(G0ORX_FRONTPANEL_2))
@@ -236,7 +236,7 @@ extern struct maps myMapFiles[];
 #define TEMP_X_OFFSET         15
 #define TEMP_Y_OFFSET         465                                           // 480 * 0.97 = 465
 #define AGC_Y_OFFSET          292
-#define AGC_X_OFFSET          680
+#define AGC_X_OFFSET          680 // WAS 680 G0ORX 24/02/24
 #define VOLUME_Y_OFFSET       180
 #define INCREMENT_X           WATERFALL_RIGHT_X + 25
 #define INCREMENT_Y           WATERFALL_TOP_Y   + 70
@@ -263,7 +263,8 @@ extern struct maps myMapFiles[];
 #define SMETER_BAR_HEIGHT     18
 #define SMETER_BAR_LENGTH     180
 #define SPECTRUM_NOISE_FLOOR  (SPECTRUM_TOP_Y + SPECTRUM_HEIGHT - 3)
-#define TIME_X                (XPIXELS * 0.73)                            // Upper-left corner for time
+//#define TIME_X                (XPIXELS * 0.73)                            // Upper-left corner for time
+#define TIME_X                (XPIXELS * 0.83)                            // Upper-left corner for time
 #define TIME_Y                (YPIXELS * 0.07)
 #define WHICH_SIDEBAND_X      (XPIXELS * 0.70)
 #define WHICH_SIDEBAND_Y      (YPIXELS * 0.20)
@@ -2149,6 +2150,8 @@ void AMDemodAM();
 void AMDecodeSAM(); // AFP 11-03-22
 void FMDemod_init(); // G0ORX 02/21/24
 void FMDemod(); // G0ORX 02/21/24
+void FMSquelch(); // G0ORX 02/24/24
+extern float32_t Squelch; // G0ORX 02/24/24
 void AssignEEPROMObjectToVariable();
 
 int  BandOptions();
@@ -2442,6 +2445,7 @@ void ZoomFFTExe(uint32_t blockSize);
 #define AGC_GAIN 2
 #define SIDETONE_VOLUME 3
 #define NOISE_FLOOR_LEVEL 4
+#define FMSQUELCH_LEVEL 5
 
  extern int volumeFunction;
 #endif

@@ -134,6 +134,9 @@ void ResetTuning() {
 *****/
 
 void SetFreq() {  //AFP 09-24-23 V12
+#ifdef G0ORX_FRONTPANEL
+  __disable_irq();
+#endif
  //  The receive LO frequency is not dependent on mode or sideband.  CW frequency shift is done in DSP code.
   if (radioState == SSB_RECEIVE_STATE || radioState == CW_RECEIVE_STATE) {  //  Receive state
     Clk1SetFreq = ((TxRxFreq * SI5351_FREQ_MULT) + IFFreq * SI5351_FREQ_MULT);
@@ -181,6 +184,9 @@ void SetFreq() {  //AFP 09-24-23 V12
       oldMultiple = multiple;
     }
   }
+#ifdef G0ORX_FRONTPANEL
+  __enable_irq();
+#endif
 
   //si5351.output_enable(SI5351_CLK2, 0);
 #ifndef G0ORX_CAT
@@ -196,6 +202,7 @@ void SetFreq() {  //AFP 09-24-23 V12
   Serial.println(multiple);
 #endif
   DrawFrequencyBarValue();
+
 }
 
 /*****

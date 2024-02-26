@@ -875,7 +875,7 @@ void BandInformation()  // SSB or CW
       tft.print("(SAM) ");  //AFP 11-01-22
       break;
     case DEMOD_FM:          // G0ORX 02/21/24
-      tft.print("(FM)  ");  // G0ORX 02/21/24
+      tft.print("(NFM)  ");  // G0ORX 02/21/24
       break;
   }
   ShowCurrentPowerSetting();
@@ -1046,9 +1046,10 @@ FASTRUN void ShowFrequency() {
     tft.print(freqBuffer);                                                                          // Show VFO_A
     //tft.setFont(&FreeMonoBold18pt7b);               // KF5N
     //    tft.setFontScale(1.5);                      // KF5N
+    tft.setCursor(tft.getFontWidth() * 13, FREQUENCY_Y - 14); // G0ORX 2/20/24
     tft.setFontScale(1, 1);  // JJP 7/15/23 // was 1,2
     tft.setTextColor(RA8875_LIGHT_GREY);
-    tft.setCursor(FREQUENCY_X_SPLIT + tft.getFontWidth() * 4, FREQUENCY_Y - 15); // G0ORX 2/20/24
+    //tft.setCursor(FREQUENCY_X_SPLIT + tft.getFontWidth() * 4, FREQUENCY_Y - 15); // G0ORX 2/20/24
     FormatFrequency(currentFreqB, freqBuffer);
     tft.print(freqBuffer);
   } else {  // Show VFO_B
@@ -1268,11 +1269,10 @@ void UpdateInfoWindow() {
 *****/
 void UpdateVolumeField() {
   tft.setFontScale((enum RA8875tsize)1);
-
   tft.setCursor(BAND_INDICATOR_X + 20, BAND_INDICATOR_Y);  // Volume
   tft.setTextColor(RA8875_WHITE);
 #if defined(G0ORX_FRONTPANEL) || defined(G0ORX_FRONTPANEL_2)
-  tft.fillRect(BAND_INDICATOR_X + 20, BAND_INDICATOR_Y, tft.getFontWidth() * 3, tft.getFontHeight(), RA8875_BLACK);
+  tft.fillRect(BAND_INDICATOR_X + 20, BAND_INDICATOR_Y, tft.getFontWidth() * 4, tft.getFontHeight(), RA8875_BLACK);
   switch(volumeFunction) {
     case AUDIO_VOLUME:
       tft.print("Vol:");
@@ -1288,6 +1288,9 @@ void UpdateVolumeField() {
       break;
     case NOISE_FLOOR_LEVEL:
       tft.print("NFl:");
+      break;
+    case FMSQUELCH_LEVEL:
+      tft.print("SQL:");
       break;
   } 
 #else
@@ -1316,6 +1319,9 @@ void UpdateVolumeField() {
       DrawSpectrumDisplayContainer();
       ShowSpectrumdBScale();
       break;
+    case FMSQUELCH_LEVEL:
+      tft.print((int)Squelch);
+      break;
   }
 #else
   tft.print(audioVolume);
@@ -1334,14 +1340,16 @@ void UpdateVolumeField() {
 *****/
 void UpdateAGCField() {
   tft.setFontScale((enum RA8875tsize)1);
-  tft.fillRect(AGC_X_OFFSET, AGC_Y_OFFSET, tft.getFontWidth() * 6, tft.getFontHeight(), RA8875_BLACK);
-  tft.setCursor(BAND_INDICATOR_X + 150, BAND_INDICATOR_Y);
+  tft.fillRect(AGC_X_OFFSET, AGC_Y_OFFSET, (int)(tft.getFontWidth() * 5.5), tft.getFontHeight(), RA8875_BLACK);
+  //tft.setCursor(BAND_INDICATOR_X + 150, BAND_INDICATOR_Y);
+  tft.setCursor(AGC_X_OFFSET, AGC_Y_OFFSET);
   switch (AGCMode) {  // The opted for AGC
     case 0:           // Off
       tft.setTextColor(DARKGREY);
       tft.print("AGC");
+      tft.setCursor(AGC_X_OFFSET+(int)(tft.getFontWidth() * 3.5), AGC_Y_OFFSET+15); // G0ORX 24/02/24
       tft.setFontScale((enum RA8875tsize)0);
-      tft.setCursor(BAND_INDICATOR_X + 200, BAND_INDICATOR_Y + 15);
+      //tft.setCursor(AGC_X_OFFSET, BAND_INDICATOR_Y + 15); // G0ORX 24/02/24
       tft.print(" off");
       tft.setFontScale((enum RA8875tsize)1);
       break;

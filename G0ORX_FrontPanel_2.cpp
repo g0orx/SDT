@@ -386,6 +386,14 @@ void front_panel_interrupt() {
             currentNoiseFloor[currentBand]=100;
           }
           break;
+        case FMSQUELCH_LEVEL:
+          Squelch += adjustVolEncoder;
+          if(Squelch<0) {
+            Squelch=0;
+          } else if(Squelch>99) {
+            Squelch=99;
+          }
+          break;
       }
       volumeChangeFlag = true;
       break;

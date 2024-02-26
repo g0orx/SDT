@@ -168,7 +168,7 @@ void EncoderVolume()  //============================== AFP 10-22-22  Begin new
 #else
   char result;
 #endif 
-  int increment [[maybe_unused]] = 0;
+  int adjustVolEncoder = 0;
 
   result = volumeEncoder.process();  // Read the encoder
 
@@ -188,6 +188,70 @@ void EncoderVolume()  //============================== AFP 10-22-22  Begin new
       break;
   }
 #endif
+#ifdef G0ORX_FRONTPANEL
+  switch(volumeFunction) {
+        case AUDIO_VOLUME:
+          audioVolume += adjustVolEncoder;
+
+          if (audioVolume > 100) {  // In range?
+            audioVolume = 100;
+          } else {
+           if (audioVolume < 0) {
+              audioVolume = 0;
+            }
+          }
+          break;
+        case AGC_GAIN:
+          bands[currentBand].AGC_thresh += adjustVolEncoder;
+          if(bands[currentBand].AGC_thresh < -20) {
+            bands[currentBand].AGC_thresh = -20;
+          } else if(bands[currentBand].AGC_thresh > 120) {
+            bands[currentBand].AGC_thresh = 120;
+          }
+          AGCLoadValues();
+          break;
+        case MIC_GAIN:
+          currentMicGain += adjustVolEncoder;
+          if(currentMicGain < -40) {
+            currentMicGain = -40;
+          } else if(currentMicGain > 30) {
+            currentMicGain = 30;
+          }
+          if(radioState == SSB_TRANSMIT_STATE ) {
+            comp1.setPreGain_dB(currentMicGain);
+            comp2.setPreGain_dB(currentMicGain);
+          }
+          break;
+        case SIDETONE_VOLUME:
+          sidetoneVolume += adjustVolEncoder;
+          if(sidetoneVolume < 0.0 ) {
+            sidetoneVolume = 0.0;
+          } else if(sidetoneVolume > 100.0) {
+            sidetoneVolume = 100.0;
+          }
+          if(radioState == CW_TRANSMIT_STRAIGHT_STATE || radioState == CW_TRANSMIT_KEYER_STATE) {
+            modeSelectOutL.gain(1, sidetoneVolume/100.0);
+            modeSelectOutR.gain(1, sidetoneVolume/100.0);
+          }
+          break;
+        case NOISE_FLOOR_LEVEL:
+          currentNoiseFloor[currentBand] += adjustVolEncoder;
+          if(currentNoiseFloor[currentBand]<0) {
+            currentNoiseFloor[currentBand]=0;
+          } else if(currentNoiseFloor[currentBand]>100) {
+            currentNoiseFloor[currentBand]=100;
+          }
+          break;
+        case FMSQUELCH_LEVEL:
+          Squelch += adjustVolEncoder;
+          if(Squelch<0) {
+            Squelch=0;
+          } else if(Squelch>99) {
+            Squelch=99;
+          }
+          break;
+      }
+#else
   audioVolume += adjustVolEncoder;
   // simulate log taper.  As we go higher in volume, the increment increases.
 
@@ -206,6 +270,7 @@ void EncoderVolume()  //============================== AFP 10-22-22  Begin new
     if (audioVolume < MIN_AUDIO_VOLUME)
       audioVolume = MIN_AUDIO_VOLUME;
   }
+#endif
 
   volumeChangeFlag = true;  // Need this because of unknown timing in display updating.
 

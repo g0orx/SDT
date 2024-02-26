@@ -437,6 +437,7 @@ void ProcessIQData()
         break;
       case DEMOD_FM: // G0ORX 02/21/24
         FMDemod();
+        FMSquelch();
         break;
     }
     // == AFP 10-30-22

@@ -559,10 +559,14 @@ void DisplayClock()
   }
   strcat(timeBuffer, temp);
 
-  tft.setFontScale( (enum RA8875tsize) 1);
+  //tft.setFontScale( (enum RA8875tsize) 1);
+  tft.setFontScale( (enum RA8875tsize) 0); // G0ORX 02/24/24
 
-  tft.fillRect(TIME_X - 20, TIME_Y, XPIXELS - TIME_X - 1, CHAR_HEIGHT, RA8875_BLACK);
-  tft.setCursor(TIME_X - 20, TIME_Y);
+  //tft.fillRect(TIME_X - 20, TIME_Y, XPIXELS - TIME_X - 1, CHAR_HEIGHT, RA8875_BLACK);
+  //tft.setCursor(TIME_X - 20, TIME_Y);
+  // G0ORX 02/24/24
+  tft.fillRect(TIME_X, TIME_Y, XPIXELS - TIME_X - 1, CHAR_HEIGHT, RA8875_BLACK);
+  tft.setCursor(TIME_X, TIME_Y);
   tft.setTextColor(RA8875_WHITE);
   tft.print(timeBuffer);
 }                                                   // end function displayTime

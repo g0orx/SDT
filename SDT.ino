@@ -516,6 +516,8 @@ uint8_t my_mac[] = {
 };
 #endif
 
+float32_t Squelch = 0; // 0=Off.. 100 // JDM 02/24/24
+
 #ifndef G0ORX_VFO
 /*                                  Presented here so you can see how the members allign
 struct maps {
