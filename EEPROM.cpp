@@ -2,13 +2,7 @@
 #include "SDT.h"
 #endif
 
-#define DEBUG_MESSAGES
 
-#ifdef DEBUG_MESSAGES
-#define Debug(x) Serial.println(x)
-#else
-#define Debug(x)
-#endif
 
 #define DEBUG
 #define DEBUG1

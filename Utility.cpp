@@ -2,14 +2,6 @@
 #include "SDT.h"
 #endif
 
-#define DEBUG_MESSAGES
-
-#ifdef DEBUG_MESSAGES
-#define Debug(x) Serial.println(x)
-#else
-#define Debug(x)
-#endif
-
 /*****
   Purpose: Generate Array with variable sinewave frequency tone AFP 05-17-22
   Parameter list:

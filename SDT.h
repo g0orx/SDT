@@ -1,6 +1,14 @@
 #ifndef BEENHERE
 #define BEENHERE
 
+//#define DEBUG_MESSAGES
+
+#ifdef DEBUG_MESSAGES
+#define Debug(x) Serial.println(x)
+#else
+#define Debug(x)
+#endif
+
 // enable for V12 hardware -- G0ORX
 #define V12
 
@@ -2150,8 +2158,8 @@ void AMDemodAM();
 void AMDecodeSAM(); // AFP 11-03-22
 void FMDemod_init(); // G0ORX 02/21/24
 void FMDemod(); // G0ORX 02/21/24
-void FMSquelch(); // G0ORX 02/24/24
-extern float32_t Squelch; // G0ORX 02/24/24
+void Squelch(); // G0ORX 02/24/24
+extern float32_t squelch; // G0ORX 02/24/24
 void AssignEEPROMObjectToVariable();
 
 int  BandOptions();
@@ -2445,7 +2453,7 @@ void ZoomFFTExe(uint32_t blockSize);
 #define AGC_GAIN 2
 #define SIDETONE_VOLUME 3
 #define NOISE_FLOOR_LEVEL 4
-#define FMSQUELCH_LEVEL 5
+#define SQUELCH_LEVEL 5
 
  extern int volumeFunction;
 #endif

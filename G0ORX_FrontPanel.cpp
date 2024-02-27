@@ -33,14 +33,6 @@
 
 #ifdef G0ORX_FRONTPANEL
 
-#define DEBUG_MESSAGES
-
-#ifdef DEBUG_MESSAGES
-#define Debug(x) Serial.println(x)
-#else
-#define Debug(x)
-#endif
-
 #define DEBOUNCE_DELAY 10
 
 // comment out to swap A and B if using cheap encoders

@@ -1289,7 +1289,7 @@ void UpdateVolumeField() {
     case NOISE_FLOOR_LEVEL:
       tft.print("NFl:");
       break;
-    case FMSQUELCH_LEVEL:
+    case SQUELCH_LEVEL:
       tft.print("SQL:");
       break;
   } 
@@ -1319,8 +1319,8 @@ void UpdateVolumeField() {
       DrawSpectrumDisplayContainer();
       ShowSpectrumdBScale();
       break;
-    case FMSQUELCH_LEVEL:
-      tft.print((int)Squelch);
+    case SQUELCH_LEVEL:
+      tft.print((int)squelch);
       break;
   }
 #else

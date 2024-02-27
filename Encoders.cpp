@@ -242,12 +242,12 @@ void EncoderVolume()  //============================== AFP 10-22-22  Begin new
             currentNoiseFloor[currentBand]=100;
           }
           break;
-        case FMSQUELCH_LEVEL:
-          Squelch += adjustVolEncoder;
-          if(Squelch<0) {
-            Squelch=0;
-          } else if(Squelch>99) {
-            Squelch=99;
+        case SQUELCH_LEVEL:
+          squelch += adjustVolEncoder;
+          if(squelch<0) {
+            squelch=0;
+          } else if(squelch>99) {
+            squelch=99;
           }
           break;
       }

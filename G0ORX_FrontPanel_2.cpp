@@ -15,15 +15,6 @@
 
 #include <Wire.h>
 
-// uncomment to print debug messages
-//#define DEBUG_MESSAGES
-
-#ifdef DEBUG_MESSAGES
-#define Debug(x) Serial.println(x)
-#else
-#define Debug(x)
-#endif
-
 #define I2C_ADDRESS 0x20
 bool found_pico = false;
 bool configured_pico = false;
@@ -386,12 +377,12 @@ void front_panel_interrupt() {
             currentNoiseFloor[currentBand]=100;
           }
           break;
-        case FMSQUELCH_LEVEL:
-          Squelch += adjustVolEncoder;
-          if(Squelch<0) {
-            Squelch=0;
-          } else if(Squelch>99) {
-            Squelch=99;
+        case SQUELCH_LEVEL:
+          squelch += adjustVolEncoder;
+          if(squelch<0) {
+            squelch=0;
+          } else if(squelch>99) {
+            squelch=99;
           }
           break;
       }
@@ -484,11 +475,6 @@ void front_panel_interrupt() {
 void FrontPanel2Init() {
   uint8_t res;
   int count=0;
-
-#ifdef DEBUG_MESSAGES
-  Serial.begin(115000);
-#endif
-
 
   KeypadInit();
 

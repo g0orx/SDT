@@ -14,14 +14,6 @@
 
 #ifdef G0ORX_FRONTPANEL
 
-#define DEBUG_MESSAGES
-
-#ifdef DEBUG_MESSAGES
-#define Debug(x) Serial.println(x)
-#else
-#define Debug(x)
-#endif
-
 static bool ccw_fall = 0;
 static bool cw_fall = 0;
 #ifdef BOURN_ENCODERS

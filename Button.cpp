@@ -309,9 +309,9 @@ void ExecuteButtonPress(int val)
           volumeFunction=NOISE_FLOOR_LEVEL;
           break;
         case NOISE_FLOOR_LEVEL:
-          volumeFunction=FMSQUELCH_LEVEL;
+          volumeFunction=SQUELCH_LEVEL;
           break;
-        case FMSQUELCH_LEVEL:
+        case SQUELCH_LEVEL:
           volumeFunction=AUDIO_VOLUME;
           break;
       }

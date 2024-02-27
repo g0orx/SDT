@@ -189,6 +189,7 @@ void SetFreq() {  //AFP 09-24-23 V12
 #endif
 
   //si5351.output_enable(SI5351_CLK2, 0);
+/*
 #ifndef G0ORX_CAT
   Serial.print("centerFreq=");
   Serial.println(centerFreq);
@@ -201,6 +202,7 @@ void SetFreq() {  //AFP 09-24-23 V12
   Serial.print("multiple=");
   Serial.println(multiple);
 #endif
+*/
   DrawFrequencyBarValue();
 
 }

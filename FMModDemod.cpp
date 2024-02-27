@@ -150,9 +150,9 @@ void FMDemod() {
 }
 
 
-void FMSquelch() {
-  if(Squelch!=0) {
-    if(dbm < (-141+Squelch)) {
+void Squelch() {
+  if(squelch!=0) {
+    if(dbm < (-141+squelch)) {
       arm_scale_f32(float_buffer_L, 0.0, float_buffer_L, (int)FFT_length / 2);
       arm_scale_f32(float_buffer_R, 0.0, float_buffer_R, (int)FFT_length / 2);
     }
